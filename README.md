@@ -1,1 +1,1 @@
-# douyin_voice_dearpygui
+抖音播音助手:刷礼物、发弹幕、新人进入自动播放语音
