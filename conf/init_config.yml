@@ -1,0 +1,10 @@
+# https开头的完整抖音直播间地址， 例如 https://live.douyin.com/896208194652
+room_url:
+
+# 语音播报的选项, True 就是需要语音播报
+speaking:
+  gift: ["感谢礼物", True]
+  comment: ["自动读评论", False]
+  follow: ["感谢关注", False]
+  like: ["感谢点赞", False]
+  enter_room: ["欢迎进直播间", False]

@@ -1,5 +1,7 @@
 import dearpygui.dearpygui as dpg
 from utils.reg_font import reg_cnfont
+import conf.config 
+from utils.util import is_null 
 
 dpg.create_context()        # 必须是第一条执行的语句
 dpg.create_viewport(title="抖音播音助手:刷礼物、发弹幕、新人进入自动播放语音", width=1152, height=1152)
@@ -7,6 +9,8 @@ reg_cnfont(font_size=24)    # 注册中文字体，支持中文
 
 SPACE_WIDTH = 30   # 空格长度
 SPACE_HEIGHT = 30  # 空白行高
+
+config = conf.config.read_config()  # 读取配置文件
 
 speaking= {
     "gift": ["感谢礼物", True],      # 刷礼物
@@ -21,6 +25,11 @@ def select_speaking(sender, app_data):        # sender 是调用此回调的复�
     checkbox_label = dpg.get_item_label(sender)
     speaking[sender][1] = checkbox_state
 
+    config['speaking'][sender][1] = checkbox_state            # 更新配置文件的项
+    conf.config.write_config(config)   # 写入配置文件
+
+    print(f"=====\n{config}\n=======")
+
     print(f"[{sender}: {speaking[sender][1] }]{checkbox_label} is {'选中' if checkbox_state else 'unchecked'}.")
     print(f"{speaking}\n")
 
@@ -30,22 +39,24 @@ def select_speaking(sender, app_data):        # sender 是调用此回调的复�
 with dpg.window(tag="main_window",  autosize=True, no_resize=True, no_title_bar=True, pos=(20,20)):
 # with dpg.window(label='test_dearpygui_hello_world', width=1024, height=800, pos=(20, 20)):
     # 输入直播间地址
-    with dpg.group(label='整体组合', horizontal=True, horizontal_spacing=10):  # 把说明文字和输入框放在同一行
-        dpg.add_text(label='mytxt', default_value='直播间地址', tag='desc_live_room_url')
-        dpg.add_input_text(label='', hint="https开头的完整直播间地址，例如 https://live.douyin.com/896208194652", width=800,  tag='live_room_url')
+    with dpg.group(label='', horizontal=True, horizontal_spacing=10):  # 把说明文字和输入框放在同一行
+        dpg.add_text(label='', default_value='直播间地址', tag='desc_live_room_url')
+        dpg.add_input_text(label='', hint="https开头的完整直播间地址，例如 https://live.douyin.com/896208194652", 
+                           default_value="" if is_null(config['room_url'])  else config['room_url'],
+                           width=800,  tag='room_url')
 
-    # 显示语音播报的选项
+    # 显示可以语音播报的选项
     dpg.add_spacer(height=SPACE_HEIGHT)  # 空白行
     dpg.add_text(default_value='语音播报:')
     keys = list(speaking.keys())
     with dpg.group(horizontal=True):
         for key in keys[0: 1+ len(keys)//2]:  # 需要语音播报的选项， 分2行显示
             dpg.add_spacer(width=SPACE_WIDTH)
-            dpg.add_checkbox(label=speaking[key][0], tag=key, callback=select_speaking)
+            dpg.add_checkbox(label=speaking[key][0], default_value=config['speaking'][key][1], tag=key, callback=select_speaking)
     with dpg.group(horizontal=True):
         for key in keys[1 + len(keys)//2 : ]:
             dpg.add_spacer(width=SPACE_WIDTH)
-            dpg.add_checkbox(label=speaking[key][0], tag=key, callback=select_speaking)
+            dpg.add_checkbox(label=speaking[key][0], default_value=config['speaking'][key][1], tag=key, callback=select_speaking)
 
 
 
